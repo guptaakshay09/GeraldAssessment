@@ -19,19 +19,27 @@
 
 Navigate to the api folder and launch the web server hosting your endpoints:
 
-````bash
+```bash
 cd RagKnowledgeService
 dotnet run
+```
 
 Run test cases
+
 ```bash
 dotnet test
+```
 
-### 2. Start the React FE
+### 2. Start the Backend API
+
 Navigate to rag-ui folder:
+
 ```bash
 cd rag-ui
 npm run dev
-````
+```
 
 ## Improvements:
+
+- Add ollama model integration
+- Add docker support
