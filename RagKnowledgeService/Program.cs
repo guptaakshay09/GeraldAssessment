@@ -6,11 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Core API Controllers and JSON formatting configuration
 builder.Services.AddControllers();
 
-// 2. Bind RAG Configuration parameters from appsettings or default overrides
+// 2. Bind RAG Configuration parameters from appsettings
 builder.Services.Configure<RagConfig>(options =>
 {
-    options.ChunkSize = 250; // Character count for chunk evaluation
-    options.TopK = 3;        // Top matches to extract
+    options.ChunkSize = 250; // Character count for chunk evaluation [cite: 18]
+    options.TopK = 3;        // Top matches to extract [cite: 18]
 });
 
 // 3. Register Application Services inside DI pipeline
@@ -36,7 +36,14 @@ app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
 
-// Automatically wake up the singleton storage instance to pull documents immediately on start
-app.Services.GetRequiredService<IKnowledgeStore>().InitializeInboundData();
+// Automatically parse source documents into memory upon initialization [cite: 12]
+try
+{
+    app.Services.GetRequiredService<IKnowledgeStore>().InitializeInboundData();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Warning: Initial ingestion step failed: {ex.Message}");
+}
 
 app.Run();

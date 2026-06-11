@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # 1. Core Ollama Service Container
+  ollama-engine:
+    image: ollama/ollama:latest
+    container_name: ollama_engine
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_storage:/root/.ollama
+    networks:
+      - rag_network
+
+  # 2. Automation Companion Container: Instantly pulls the model on initialization
+  ollama-model-provisioner:
+    image: alpine:latest
+    container_name: ollama_model_provisioner
+    depends_on:
+      - ollama-engine
+    networks:
+      - rag_network
+    restart: on-failure
+    entrypoint: >
+      /bin/sh -c "
+      apk add --no-cache curl &&
+      echo 'Waiting for Ollama Engine to wake up...';
+      until curl -s http://ollama-engine:11434/api/tags > /dev/null; do sleep 2; done;
+      echo 'Downloading llama3.2 model...';
+      curl -X POST http://ollama-engine:11434/api/pull -d '{\"name\": \"llama3.2\"}';
+      echo 'Model provision complete!';
+      "
+
+  # 3. Grounded RAG .NET Web API Service Container
+  rag-backend-api:
+    build:
+      context: ./RagKnowledgeService
+      dockerfile: Dockerfile
+    container_name: rag_backend_api
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OllamaSettings__BaseUrl=http://ollama-engine:11434
+      - OllamaSettings__ModelName=llama3.2
+    depends_on:
+      - ollama-engine
+    networks:
+      - rag_network
+
+volumes:
+  ollama_storage:
+
+networks:
+  rag_network:
+    driver: bridge

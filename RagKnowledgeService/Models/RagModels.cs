@@ -33,4 +33,21 @@ namespace RagKnowledgeService.Models
         public string Title { get; set; } = string.Empty;
         public string Snippet { get; set; } = string.Empty;
     }
+
+    // Ollama API request payload schema
+    public class OllamaGenerateRequest
+    {
+        public string Model { get; set; } = "llama3.2";
+        public string Prompt { get; set; } = string.Empty;
+        public bool Stream { get; set; } = false;
+        public Dictionary<string, object>? Options { get; set; }
+    }
+
+    // Ollama API response payload schema
+    public class OllamaGenerateResponse
+    {
+        public string Model { get; set; } = string.Empty;
+        public string Response { get; set; } = string.Empty;
+        public bool Done { get; set; }
+    }
 }

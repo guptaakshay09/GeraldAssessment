@@ -1,0 +1,31 @@
+# Stage 1: Build and compile the .NET application
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy project files and restore dependencies
+COPY ["RagKnowledgeService.csproj", "./"]
+RUN dotnet restore "RagKnowledgeService.csproj"
+
+# Copy the remaining source code and build
+COPY . .
+RUN dotnet build "RagKnowledgeService.csproj" -c Release -o /app/build
+
+# Stage 2: Publish the binaries
+FROM build AS publish
+RUN dotnet publish "RagKnowledgeService.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Stage 3: Final runtime environment
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+EXPOSE 5000
+
+# Copy published files
+COPY --from=publish /app/publish .
+
+# CRITICAL: Copy the mock markdown data folder into the runtime container
+COPY Data ./Data
+
+# Set environmental variables to bind to port 5000
+ENV ASPNETCORE_URLS=http://+:5000
+
+ENTRYPOINT ["dotnet", "RagKnowledgeService.dll"]

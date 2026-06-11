@@ -30,7 +30,7 @@ Run test cases
 dotnet test
 ```
 
-### 2. Start the Backend API
+### 2. Start the FrontEnd
 
 Navigate to rag-ui folder:
 
