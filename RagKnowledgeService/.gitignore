@@ -1,0 +1,21 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.rsuser
+
+# Test output
+TestResults/
+*.trx
+
+# Rider / Roslyn / local metadata
+_ReSharper.Caches/
+*.DotSettings.user
+
+# Logs
+*.log
